@@ -32,6 +32,9 @@ $spaceUtilityData: (
       }
     }
   }
+  .border-radius#{$breakPointPrefix}-full {
+    border-radius: 100vmax
+  }
 }
 
 @include utilitiesConstructor();
