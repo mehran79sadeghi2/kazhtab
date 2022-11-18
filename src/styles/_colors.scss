@@ -1,0 +1,159 @@
+@use "sass:math";
+@use "sass:map";
+
+$primary: (
+  "primary": $primary,
+);
+
+$secondaries-map: ();
+
+@for $i from 1 through length($secondaries) {
+  $value: nth($secondaries, $i);
+  @if ($i == 1) {
+    $secondaries-map: map-merge(
+      $secondaries-map,
+      (
+        secondary: $value,
+      )
+    );
+  } @else {
+    $secondaries-map: map-merge($secondaries-map, (secondary-#{$i}: $value));
+  }
+}
+
+$secondaries: $secondaries-map;
+
+@function generate-extended-colors($key, $colorValue) {
+  $result-list: ();
+  @each $lightness in $color-extended-lightness-list {
+    @if ($lightness < 100) {
+      $result-list: map-merge(
+        $result-list,
+        (
+          #{$key}-#{$lightness}:
+            mix($colorValue, white, math.percentage(math.div($lightness, 100)))
+        )
+      );
+    } @else {
+      $result-list: map-merge(
+        $result-list,
+        (
+          #{$key}-#{$lightness}:
+            mix(
+              $colorValue,
+              black,
+              math.percentage(1 - math.div($lightness - 100, 100))
+            )
+        )
+      );
+    }
+  }
+  @return $result-list;
+}
+
+@each $key, $value in $primary {
+  $primary: map-merge($primary, generate-extended-colors($key, $value));
+}
+
+@each $key, $value in $secondaries {
+  @if ($key == "secondary") {
+    $secondaries: map-merge(
+      $secondaries,
+      generate-extended-colors("secondary", $value)
+    );
+  } @else {
+    $secondaries: map-merge(
+      $secondaries,
+      generate-extended-colors(#{$key}, $value)
+    );
+  }
+}
+
+@each $key, $value in $semantics {
+  $semantics: map-merge($semantics, generate-extended-colors($key, $value));
+}
+
+$colors: map-merge($primary, $secondaries);
+$colors: map-merge($colors, $semantics);
+
+:root {
+  @each $key, $value in $colors {
+    --#{$key}: #{$value};
+  }
+}
+
+@mixin colorPropertyMaker($classPrefix, $propertyName, $breakPointPrefix) {
+  @if ($propertyName == "border") {
+    @each $key, $value in $colors {
+      .#{$classPrefix}#{$breakPointPrefix}-#{$key} {
+        #{$propertyName}: 1px solid var(--#{$key});
+      }
+    }
+  } @else {
+    @each $key, $value in $colors {
+      .#{$classPrefix}#{$breakPointPrefix}-#{$key} {
+        #{$propertyName}: var(--#{$key});
+      }
+    }
+  }
+}
+
+@mixin colorPropertyMarkerHoverActive(
+  $classPrefix,
+  $propertyName,
+  $breakPointPrefix
+) {
+  @if ($propertyName == "border") {
+    @each $key, $value in $colors {
+      .#{$classPrefix}-hover#{$breakPointPrefix}-#{$key} {
+        #{$propertyName}: 1px solid var(--#{$key});
+      }
+    }
+  } @else {
+    @each $key, $value in $colors {
+      .#{$classPrefix}-hover#{$breakPointPrefix}-#{$key} {
+        &:hover {
+          #{$propertyName}: var(--#{$key});
+        }
+      }
+      .#{$classPrefix}-active-#{$key} {
+        &:active {
+          #{$propertyName}: var(--#{$key});
+        }
+      }
+    }
+  }
+}
+
+@mixin colorsConstructor($breakPointPrefix: "") {
+  @include colorPropertyMaker("text", "color", $breakPointPrefix);
+  @include colorPropertyMaker("bg", "background-color", $breakPointPrefix);
+  @include colorPropertyMaker(
+    "border",
+    "border",
+    $breakPointPrefix
+  );
+
+  /* mouse, touch pad */
+  @media (hover: hover) and (pointer: fine) {
+    @include colorPropertyMarkerHoverActive("text", "color", $breakPointPrefix);
+    @include colorPropertyMarkerHoverActive(
+      "bg",
+      "background-color",
+      $breakPointPrefix
+    );
+    @include colorPropertyMarkerHoverActive(
+      "border",
+      "border",
+      $breakPointPrefix
+    );
+  }
+}
+
+@include colorsConstructor();
+
+@each $breakPointKey, $breakPointSize in $break-points {
+  @media (min-width: $breakPointSize) {
+    @include colorsConstructor(-#{$breakPointKey});
+  }
+}

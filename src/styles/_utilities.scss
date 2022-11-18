@@ -1,0 +1,43 @@
+$spaceUtilityData: (
+  "padding": "p",
+  "padding-left": "pl",
+  "padding-right": "pr",
+  "padding-bottom": "pb",
+  "padding-top": "pt",
+  "margin": "m",
+  "margin-left": "ml",
+  "margin-right": "mr",
+  "margin-bottom": "mb",
+  "margin-top": "mt",
+);
+
+@mixin utilitiesConstructor($breakPointPrefix: "") {
+  @each $propertyName, $classPrefix in $spaceUtilityData {
+    @for $i from 1 through length($space-coefficient) {
+      $coefficient: nth($space-coefficient, $i);
+      .#{$classPrefix}#{$breakPointPrefix}-#{$i} {
+        #{$propertyName}: $base-space * $coefficient;
+      }
+    }
+  }
+  @for $i from 1 through length($border-radius-list) {
+    $borderRadius: nth($border-radius-list, $i);
+    .border-radius#{$breakPointPrefix}-#{$i} {
+      border-radius: $borderRadius;
+    }
+
+    @if ($i == 1) {
+      .border-radius#{$breakPointPrefix} {
+        border-radius: $borderRadius;
+      }
+    }
+  }
+}
+
+@include utilitiesConstructor();
+
+@each $key, $value in $break-points {
+  @media (min-width: $value) {
+    @include utilitiesConstructor(-#{$key});
+  }
+}

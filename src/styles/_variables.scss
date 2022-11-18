@@ -1,0 +1,32 @@
+$primary: #c21d6a !default;
+
+$secondaries: #e98316 !default;
+
+$semantics: (
+  "success": #1a873c,
+  "warning": #de6421,
+  "error": #c71720,
+  "info": #0072e3,
+) !default;
+
+$neutral-numbers: 6 !default;
+
+$color-extended-lightness-list: 90, 10, 5, 110 !default;
+
+$border-width-base: 1px !default;
+$border-width-coefficient: 1, 2 !default;
+
+$break-points: (
+  'sm': 400px,
+  'md': 500px,
+  'lg': 600px,
+  'xl': 700px,
+  'xxl': 1000px,
+) !default;
+
+$base-space: 4px !default;
+$space-coefficient: 1, 2, 3, 4, 8, 16 !default;
+
+$grid-columns: 12 !default;
+
+$border-radius-list: 4px, 8px, 10px, 15px !default;

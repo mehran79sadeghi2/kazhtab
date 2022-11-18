@@ -1,0 +1,116 @@
+@use "sass:math";
+
+$gridData: (
+  "justify-content": (
+    "jusify": (
+      "center": center,
+      "start": flex-start,
+      "end": flex-end,
+      "between": space-between,
+      "around": space-around,
+    ),
+  ),
+  "align-items": (
+    "align-items": (
+      "center": center,
+      "start": flex-start,
+      "end": flex-end,
+      "between": space-between,
+      "around": space-around,
+    ),
+  ),
+  "flex-direction": (
+    "f": (
+      "row": row,
+      "row-reverse": row-reverse,
+      "column": column,
+      "column-reverse": column-reverse,
+    ),
+  ),
+  "display": (
+    "d": (
+      "flex": flex,
+      "block": block,
+      "none": none,
+      "inline": inline,
+    ),
+  ),
+  "align-self": (
+    "align-self": (
+      "start": flex-start,
+      "end": flex-end,
+      "stretch": stretch,
+    ),
+  ),
+  "width": (
+    "w": (
+      "0": 0,
+      "25": 25%,
+      "50": 50%,
+      "75": 75%,
+      "100": 100%,
+      "unset": unset,
+    ),
+  ),
+  "height": (
+    "h": (
+      "0": 0,
+      "25": 25%,
+      "50": 50%,
+      "75": 75%,
+      "100": 100%,
+      "unset": unset,
+    ),
+  ),
+  "flex-grow": (
+    "f-grow": (
+      "1": 1,
+      "2": 2,
+    ),
+  ),
+  "flex-wrap": (
+    "f": (
+      "wrap": wrap,
+      "no-wrap": nowrap,
+    ),
+  ),
+);
+
+@mixin gridsConstructor($breakPointPrefix: "") {
+  @each $propertyName, $classPrefixContainer in $gridData {
+    @each $classPrefix, $postfixContainer in $classPrefixContainer {
+      @each $classPostfix, $value in $postfixContainer {
+        .#{$classPrefix}#{$breakPointPrefix}-#{$classPostfix} {
+          #{$propertyName}: $value;
+        }
+      }
+    }
+  }
+  @for $i from 0 through $grid-columns {
+    @if ($i == 0) {
+      .col#{$breakPointPrefix} {
+        width: unset;
+        flex-grow: 1;
+      }
+    } @else {
+      .col#{$breakPointPrefix}-#{$i} {
+        width: math.percentage(math.div($i, $grid-columns));
+      }
+    }
+  }
+  .row#{$breakPointPrefix} {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+
+@include gridsConstructor();
+
+@each $key, $value in $break-points {
+  @media (min-width: $value) {
+    @include gridsConstructor(-#{$key});
+  }
+}
